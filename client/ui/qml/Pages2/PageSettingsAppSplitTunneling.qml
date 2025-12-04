@@ -21,14 +21,33 @@ import "../Components"
 PageType {
     id: root
 
-    property bool pageEnabled
+    property bool pageEnabled: true
+    property bool wasConnectedOnEntry: false
+    property bool settingsChanged: false
 
     Component.onCompleted: {
         if (ConnectionController.isConnected) {
-            PageController.showNotificationMessage(qsTr("Cannot change split tunneling settings during active connection"))
-            root.pageEnabled = false
-        } else {
-            root.pageEnabled = true
+            root.wasConnectedOnEntry = true
+        }
+    }
+
+    Component.onDestruction: {
+        if (root.wasConnectedOnEntry && root.settingsChanged) {
+            ConnectionController.closeConnection()
+            ConnectionController.openConnection()
+        }
+    }
+
+    Connections {
+        target: AppSplitTunnelingController
+
+        function onFinished(message) {
+            PageController.showNotificationMessage(message)
+            root.settingsChanged = true
+        }
+
+        function onErrorOccurred(errorMessage) {
+            PageController.showErrorMessage(errorMessage)
         }
     }
 
@@ -96,6 +115,7 @@ PageType {
             switcherFunction: function(checked) {
                 AppSplitTunnelingModel.toggleSplitTunneling(checked)
                 selector.text = root.routeModesModel[getRouteModesModelIndex()].name
+                root.settingsChanged = true
             }
         }
 
@@ -126,6 +146,7 @@ PageType {
                     selector.closeTriggered()
                     if (AppSplitTunnelingModel.routeMode !== root.routeModesModel[selectedIndex].type) {
                         AppSplitTunnelingModel.routeMode = root.routeModesModel[selectedIndex].type
+                        root.settingsChanged = true
                     }
                 }
 
@@ -244,7 +265,7 @@ PageType {
 
                 Layout.fillWidth: true
 
-                textField.placeholderText: qsTr("application name")
+                textField.placeholderText: qsTr("application or folder path")
                 buttonImageSource: "qrc:/images/controls/plus.svg"
 
                 rightButtonClickedOnEnter: true
@@ -254,10 +275,17 @@ PageType {
                     PageController.showBusyIndicator(true)
 
                     if (Qt.platform.os === "windows") {
-                        var fileName = SystemController.getFileName(qsTr("Open executable file"),
-                                                                    qsTr("Executable files (*.*)"))
-                        if (fileName !== "") {
-                            AppSplitTunnelingController.addApp(fileName)
+                        // If text field has content, add it directly (supports folders and paths)
+                        if (textField.text.trim() !== "") {
+                            AppSplitTunnelingController.addApp(textField.text.trim())
+                            textField.text = ""
+                        } else {
+                            // If empty, open file picker
+                            var fileName = SystemController.getFileName(qsTr("Open executable file"),
+                                                                        qsTr("Executable files (*.*)"))
+                            if (fileName !== "") {
+                                AppSplitTunnelingController.addApp(fileName)
+                            }
                         }
                     } else if (Qt.platform.os === "android"){
                         installedAppDrawer.openTriggered()

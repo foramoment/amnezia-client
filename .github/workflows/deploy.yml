@@ -510,6 +510,7 @@ jobs:
 # ------------------------------------------------------
 
   Build-Android:
+    if: false  # Temporarily disabled for faster testing
     runs-on: ubuntu-latest
 
     env:

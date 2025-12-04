@@ -23,17 +23,24 @@ PageType {
 
     property var isServerFromTelegramApi: ServersModel.getDefaultServerData("isServerFromTelegramApi")
     
-    property bool pageEnabled
+    property bool pageEnabled: true
+    property bool wasConnectedOnEntry: false
+    property bool settingsChanged: false
 
     Component.onCompleted: {
         if (ConnectionController.isConnected) {
-            PageController.showNotificationMessage(qsTr("Cannot change split tunneling settings during active connection"))
-            root.pageEnabled = false
-        } else if (ServersModel.isDefaultServerDefaultContainerHasSplitTunneling) {
+            root.wasConnectedOnEntry = true
+        }
+        if (ServersModel.isDefaultServerDefaultContainerHasSplitTunneling) {
             PageController.showNotificationMessage(qsTr("Default server does not support split tunneling function"))
             root.pageEnabled = false
-        } else {
-            root.pageEnabled = true
+        }
+    }
+
+    Component.onDestruction: {
+        if (root.wasConnectedOnEntry && root.settingsChanged) {
+            ConnectionController.closeConnection()
+            ConnectionController.openConnection()
         }
     }
 
@@ -42,6 +49,7 @@ PageType {
 
         function onFinished(message) {
             PageController.showNotificationMessage(message)
+            root.settingsChanged = true
         }
 
         function onErrorOccurred(errorMessage) {
@@ -110,6 +118,7 @@ PageType {
             switcherFunction: function(checked) {
                 SitesModel.toggleSplitTunneling(checked)
                 selector.text = root.routeModesModel[getRouteModesModelIndex()].name
+                root.settingsChanged = true
             }
         }
 
@@ -140,6 +149,7 @@ PageType {
                     selector.closeTriggered()
                     if (SitesModel.routeMode !== root.routeModesModel[selectedIndex].type) {
                         SitesModel.routeMode = root.routeModesModel[selectedIndex].type
+                        root.settingsChanged = true
                     }
                 }
 
