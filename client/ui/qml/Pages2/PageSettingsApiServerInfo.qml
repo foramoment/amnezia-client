@@ -318,12 +318,11 @@ PageType {
 
                     var yesButtonFunction = function() {
                         if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
-                            PageController.showNotificationMessage(qsTr("Cannot reload API config during active connection"))
-                        } else {
-                            PageController.showBusyIndicator(true)
-                            ApiConfigsController.updateServiceFromGateway(ServersModel.processedIndex, "", "", true)
-                            PageController.showBusyIndicator(false)
+                            ConnectionController.closeConnection()
                         }
+                        PageController.showBusyIndicator(true)
+                        ApiConfigsController.updateServiceFromGateway(ServersModel.processedIndex, "", "", true)
+                        PageController.showBusyIndicator(false)
                     }
                     var noButtonFunction = function() {
                     }
@@ -356,14 +355,13 @@ PageType {
 
                     var yesButtonFunction = function() {
                         if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
-                            PageController.showNotificationMessage(qsTr("Cannot unlink device during active connection"))
-                        } else {
-                            PageController.showBusyIndicator(true)
-                            if (ApiConfigsController.deactivateDevice(false)) {
-                                ApiSettingsController.getAccountInfo(true)
-                            }
-                            PageController.showBusyIndicator(false)
+                            ConnectionController.closeConnection()
                         }
+                        PageController.showBusyIndicator(true)
+                        if (ApiConfigsController.deactivateDevice(false)) {
+                            ApiSettingsController.getAccountInfo(true)
+                        }
+                        PageController.showBusyIndicator(false)
                     }
                     var noButtonFunction = function() {
                     }
@@ -393,14 +391,13 @@ PageType {
 
                     var yesButtonFunction = function() {
                         if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
-                            PageController.showNotificationMessage(qsTr("Cannot remove server during active connection"))
-                        } else {
-                            PageController.showBusyIndicator(true)
-                            if (ApiConfigsController.deactivateDevice(true)) {
-                                InstallController.removeProcessedServer()
-                            }
-                            PageController.showBusyIndicator(false)
+                            ConnectionController.closeConnection()
                         }
+                        PageController.showBusyIndicator(true)
+                        if (ApiConfigsController.deactivateDevice(true)) {
+                            InstallController.removeProcessedServer()
+                        }
+                        PageController.showBusyIndicator(false)
                     }
                     var noButtonFunction = function() {
                     }

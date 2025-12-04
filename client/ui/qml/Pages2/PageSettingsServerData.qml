@@ -163,12 +163,11 @@ PageType {
 
             var yesButtonFunction = function() {
                 if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
-                    PageController.showNotificationMessage(qsTr("Cannot remove server during active connection"))
-                } else {
-                    PageController.showBusyIndicator(true)
-                    InstallController.removeProcessedServer()
-                    PageController.showBusyIndicator(false)
+                    ConnectionController.closeConnection()
                 }
+                PageController.showBusyIndicator(true)
+                InstallController.removeProcessedServer()
+                PageController.showBusyIndicator(false)
             }
             var noButtonFunction = function() {
 
@@ -193,11 +192,10 @@ PageType {
 
             var yesButtonFunction = function() {
                 if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
-                    PageController.showNotificationMessage(qsTr("Cannot clear server from Amnezia software during active connection"))
-                } else {
-                    PageController.goToPage(PageEnum.PageDeinstalling)
-                    InstallController.removeAllContainers()
+                    ConnectionController.closeConnection()
                 }
+                PageController.goToPage(PageEnum.PageDeinstalling)
+                InstallController.removeAllContainers()
             }
             var noButtonFunction = function() {
 
@@ -222,12 +220,11 @@ PageType {
 
             var yesButtonFunction = function() {
                 if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
-                    PageController.showNotificationMessage(qsTr("Cannot reset API config during active connection"))
-                } else {
-                    PageController.showBusyIndicator(true)
-                    InstallController.removeApiConfig(ServersModel.processedIndex)
-                    PageController.showBusyIndicator(false)
+                    ConnectionController.closeConnection()
                 }
+                PageController.showBusyIndicator(true)
+                InstallController.removeApiConfig(ServersModel.processedIndex)
+                PageController.showBusyIndicator(false)
             }
             var noButtonFunction = function() {
 
