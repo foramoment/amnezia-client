@@ -51,6 +51,19 @@ PageType {
     }
 
     property var processedServer
+    property var pendingAction: null
+
+    Connections {
+        target: ConnectionController
+
+        function onConnectionStateChanged() {
+            if (!ConnectionController.isConnected && root.pendingAction !== null) {
+                var action = root.pendingAction
+                root.pendingAction = null
+                action()
+            }
+        }
+    }
 
     Connections {
         target: ServersModel
@@ -317,12 +330,18 @@ PageType {
                     var noButtonText = qsTr("Cancel")
 
                     var yesButtonFunction = function() {
-                        if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
-                            ConnectionController.closeConnection()
+                        var doReload = function() {
+                            PageController.showBusyIndicator(true)
+                            ApiConfigsController.updateServiceFromGateway(ServersModel.processedIndex, "", "", true)
+                            PageController.showBusyIndicator(false)
                         }
-                        PageController.showBusyIndicator(true)
-                        ApiConfigsController.updateServiceFromGateway(ServersModel.processedIndex, "", "", true)
-                        PageController.showBusyIndicator(false)
+
+                        if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
+                            root.pendingAction = doReload
+                            ConnectionController.closeConnection()
+                        } else {
+                            doReload()
+                        }
                     }
                     var noButtonFunction = function() {
                     }
@@ -354,14 +373,20 @@ PageType {
                     var noButtonText = qsTr("Cancel")
 
                     var yesButtonFunction = function() {
+                        var doUnlink = function() {
+                            PageController.showBusyIndicator(true)
+                            if (ApiConfigsController.deactivateDevice(false)) {
+                                ApiSettingsController.getAccountInfo(true)
+                            }
+                            PageController.showBusyIndicator(false)
+                        }
+
                         if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
+                            root.pendingAction = doUnlink
                             ConnectionController.closeConnection()
+                        } else {
+                            doUnlink()
                         }
-                        PageController.showBusyIndicator(true)
-                        if (ApiConfigsController.deactivateDevice(false)) {
-                            ApiSettingsController.getAccountInfo(true)
-                        }
-                        PageController.showBusyIndicator(false)
                     }
                     var noButtonFunction = function() {
                     }
@@ -390,14 +415,20 @@ PageType {
                     var noButtonText = qsTr("Cancel")
 
                     var yesButtonFunction = function() {
+                        var doRemove = function() {
+                            PageController.showBusyIndicator(true)
+                            if (ApiConfigsController.deactivateDevice(true)) {
+                                InstallController.removeProcessedServer()
+                            }
+                            PageController.showBusyIndicator(false)
+                        }
+
                         if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
+                            root.pendingAction = doRemove
                             ConnectionController.closeConnection()
+                        } else {
+                            doRemove()
                         }
-                        PageController.showBusyIndicator(true)
-                        if (ApiConfigsController.deactivateDevice(true)) {
-                            InstallController.removeProcessedServer()
-                        }
-                        PageController.showBusyIndicator(false)
                     }
                     var noButtonFunction = function() {
                     }

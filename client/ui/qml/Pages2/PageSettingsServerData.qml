@@ -19,6 +19,19 @@ PageType {
     signal lastItemTabClickedSignal()
 
     property bool isServerWithWriteAccess: ServersModel.isProcessedServerHasWriteAccess()
+    property var pendingAction: null
+
+    Connections {
+        target: ConnectionController
+
+        function onConnectionStateChanged() {
+            if (!ConnectionController.isConnected && root.pendingAction !== null) {
+                var action = root.pendingAction
+                root.pendingAction = null
+                action()
+            }
+        }
+    }
 
     Connections {
         target: InstallController
@@ -162,12 +175,18 @@ PageType {
             var noButtonText = qsTr("Cancel")
 
             var yesButtonFunction = function() {
-                if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
-                    ConnectionController.closeConnection()
+                var doRemove = function() {
+                    PageController.showBusyIndicator(true)
+                    InstallController.removeProcessedServer()
+                    PageController.showBusyIndicator(false)
                 }
-                PageController.showBusyIndicator(true)
-                InstallController.removeProcessedServer()
-                PageController.showBusyIndicator(false)
+
+                if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
+                    root.pendingAction = doRemove
+                    ConnectionController.closeConnection()
+                } else {
+                    doRemove()
+                }
             }
             var noButtonFunction = function() {
 
@@ -191,11 +210,17 @@ PageType {
             var noButtonText = qsTr("Cancel")
 
             var yesButtonFunction = function() {
-                if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
-                    ConnectionController.closeConnection()
+                var doClear = function() {
+                    PageController.goToPage(PageEnum.PageDeinstalling)
+                    InstallController.removeAllContainers()
                 }
-                PageController.goToPage(PageEnum.PageDeinstalling)
-                InstallController.removeAllContainers()
+
+                if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
+                    root.pendingAction = doClear
+                    ConnectionController.closeConnection()
+                } else {
+                    doClear()
+                }
             }
             var noButtonFunction = function() {
 
@@ -219,12 +244,18 @@ PageType {
             var noButtonText = qsTr("Cancel")
 
             var yesButtonFunction = function() {
-                if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
-                    ConnectionController.closeConnection()
+                var doReset = function() {
+                    PageController.showBusyIndicator(true)
+                    InstallController.removeApiConfig(ServersModel.processedIndex)
+                    PageController.showBusyIndicator(false)
                 }
-                PageController.showBusyIndicator(true)
-                InstallController.removeApiConfig(ServersModel.processedIndex)
-                PageController.showBusyIndicator(false)
+
+                if (ServersModel.isDefaultServerCurrentlyProcessed() && ConnectionController.isConnected) {
+                    root.pendingAction = doReset
+                    ConnectionController.closeConnection()
+                } else {
+                    doReset()
+                }
             }
             var noButtonFunction = function() {
 
