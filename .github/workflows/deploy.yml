@@ -11,6 +11,7 @@ env:
 
 jobs:
   Build-Linux-Ubuntu:
+    if: false  # Temporarily disabled for faster testing
     runs-on: ubuntu-22.04
 
     env:
@@ -170,6 +171,7 @@ jobs:
 # ------------------------------------------------------
 
   Build-iOS:
+    if: false  # Temporarily disabled for faster testing
     runs-on: macos-13
 
     env:
@@ -271,6 +273,7 @@ jobs:
 # ------------------------------------------------------
 
   Build-MacOS-old:
+    if: false  # Temporarily disabled for faster testing
     runs-on: macos-latest
 
     env:
@@ -349,6 +352,7 @@ jobs:
 # ------------------------------------------------------
 
   Build-MacOS:
+    if: false  # Temporarily disabled for faster testing
     runs-on: macos-latest
 
     env:
@@ -442,6 +446,7 @@ jobs:
         retention-days: 7
 
   Build-MacOS-NE:
+    if: false  # Temporarily disabled for faster testing
     runs-on: macos-latest
 
     env:
@@ -680,6 +685,7 @@ jobs:
         retention-days: 7
 
   Extra:
+    if: false  # Temporarily disabled for faster testing
     runs-on: ubuntu-latest
     steps:
       - name: Search a corresponding PR
