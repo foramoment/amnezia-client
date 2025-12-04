@@ -90,7 +90,7 @@ jobs:
 # ------------------------------------------------------
 
   Build-Windows:
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     env:
       QT_VERSION: 6.6.2
@@ -109,7 +109,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: 'true'
-        fetch-depth: 10
+        fetch-depth: 1
 
     - name: 'Get version from CMakeLists.txt'
       id: get_version
@@ -121,9 +121,12 @@ jobs:
 
     - name: 'Setup ccache'
       uses: hendrikmuhs/ccache-action@v1.2
+      with:
+        key: windows-msvc-${{ env.QT_VERSION }}
+        max-size: 500M
 
     - name: 'Install Qt'
-      uses: jurplel/install-qt-action@v3
+      uses: jurplel/install-qt-action@v4
       with:
         version: ${{ env.QT_VERSION }}
         host: 'windows'
@@ -135,6 +138,7 @@ jobs:
         tools: 'tools_ifw'
         set-env: 'true'
         extra: '--external 7z --base ${{ env.QT_MIRROR }}'
+        cache: 'true'
 
     - name: 'Setup mvsc'
       uses: ilammy/msvc-dev-cmd@v1
