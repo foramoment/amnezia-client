@@ -2,9 +2,27 @@
 
 ### _The best client for self-hosted VPN_
 
-
 [![Build Status](https://github.com/amnezia-vpn/amnezia-client/actions/workflows/deploy.yml/badge.svg?branch=dev)](https://github.com/amnezia-vpn/amnezia-client/actions/workflows/deploy.yml?query=branch:dev)
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/amnezia-vpn/amnezia-client)
+
+---
+
+## 🚀 This Fork: Amnezia without annoying bugs
+
+This is a community fork of Amnezia VPN with bug fixes and quality-of-life improvements that haven't been merged into the main repository yet.
+
+### ✅ Fixes & Improvements
+
+| Issue | Fix |
+|-------|-----|
+| 🐛 **VPN hangs on server removal** | Now properly waits for VPN to disconnect before removing server/resetting API config |
+| 🐛 **Split tunneling breaks VPN** | Fixed async reconnection — VPN now properly reconnects after settings change instead of staying disconnected |
+| 🐛 **App path shows only folder name** | Split tunneling now displays full application path, not just the last folder |
+| ✨ **Edit split tunneling while connected** | You can now modify split tunneling settings without manually disconnecting — VPN auto-reconnects on exit |
+| ✨ **Add folders to split tunneling** | Windows: You can now type folder paths directly in the input field (previously only file picker worked) |
+| 🧹 **Removed unnecessary filtering** | App split tunneling input field no longer filters the list while typing |
+
+---
 
 ### [English]([https://github.com/amnezia-vpn/amnezia-client/blob/dev/README_RU.md](https://github.com/amnezia-vpn/amnezia-client/tree/dev?tab=readme-ov-file#)) | [Русский](https://github.com/amnezia-vpn/amnezia-client/blob/dev/README_RU.md)
 
