@@ -67,6 +67,16 @@ void ConnectionController::closeConnection()
     emit disconnectFromVpn();
 }
 
+void ConnectionController::reconnect()
+{
+    if (m_isConnected || m_isConnectionInProgress) {
+        m_pendingReconnect = true;
+        emit disconnectFromVpn();
+    } else {
+        openConnection();
+    }
+}
+
 ErrorCode ConnectionController::getLastConnectionError()
 {
     return m_vpnConnection->lastError();
@@ -97,6 +107,12 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
     case Vpn::ConnectionState::Disconnected: {
         m_isConnectionInProgress = false;
         m_connectionStateText = tr("Connect");
+        
+        // Handle pending reconnect request
+        if (m_pendingReconnect) {
+            m_pendingReconnect = false;
+            openConnection();
+        }
         break;
     }
     case Vpn::ConnectionState::Disconnecting: {

@@ -32,6 +32,7 @@ public slots:
 
     void openConnection();
     void closeConnection();
+    void reconnect();
 
     ErrorCode getLastConnectionError();
     void onConnectionStateChanged(Vpn::ConnectionState state);
@@ -70,6 +71,7 @@ private:
     QString m_connectionStateText = tr("Connect");
 
     Vpn::ConnectionState m_state;
+    bool m_pendingReconnect = false;
 };
 
 #endif // CONNECTIONCONTROLLER_H

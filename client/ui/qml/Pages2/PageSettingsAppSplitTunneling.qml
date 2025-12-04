@@ -33,8 +33,7 @@ PageType {
 
     Component.onDestruction: {
         if (root.wasConnectedOnEntry && root.settingsChanged) {
-            ConnectionController.closeConnection()
-            ConnectionController.openConnection()
+            ConnectionController.reconnect()
         }
     }
 
@@ -195,11 +194,6 @@ PageType {
         model: SortFilterProxyModel {
             id: proxyAppSplitTunnelingModel
             sourceModel: AppSplitTunnelingModel
-            filters: RegExpFilter {
-                roleName: "appPath"
-                pattern: ".*" + searchField.textField.text + ".*"
-                caseSensitivity: Qt.CaseInsensitive
-            }
             sorters: [
                 RoleSorter { roleName: "appPath"; sortOrder: Qt.AscendingOrder }
             ]

@@ -39,8 +39,7 @@ PageType {
 
     Component.onDestruction: {
         if (root.wasConnectedOnEntry && root.settingsChanged) {
-            ConnectionController.closeConnection()
-            ConnectionController.openConnection()
+            ConnectionController.reconnect()
         }
     }
 
