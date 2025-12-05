@@ -64,6 +64,7 @@ signals:
     void bytesChanged(quint64 receivedBytes, quint64 sentBytes);
     void connectionStateChanged(Vpn::ConnectionState state);
     void vpnProtocolError(amnezia::ErrorCode error);
+    void disconnectFinished();
 
     void serviceIsNotReady();
 

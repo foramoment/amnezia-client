@@ -17,6 +17,10 @@
 
 #include "version.h"
 
+#include "amnezia_application.h"
+#include <QQmlApplicationEngine>
+#include <QWindow>
+
 SystemTrayNotificationHandler::SystemTrayNotificationHandler(QObject* parent) :
     NotificationHandler(parent),
     m_systemTrayIcon(parent)
@@ -38,11 +42,24 @@ SystemTrayNotificationHandler::SystemTrayNotificationHandler(QObject* parent) :
         QDesktopServices::openUrl(QUrl(websiteUrl));
     });
 
+
+
+// ... (existing includes)
+
     // Quit action: disconnect VPN first on macOS NE, else quit directly
     m_trayActionQuit = m_menu.addAction(QIcon(":/images/tray/cancel.png"),
                                        tr("Quit") + " " + APPLICATION_NAME,
                                        this,
-                                       [&](){ qApp->quit(); });
+                                       [&](){
+                                           m_systemTrayIcon.hide();
+                                           if (amnApp && amnApp->qmlEngine() && !amnApp->qmlEngine()->rootObjects().isEmpty()) {
+                                               auto window = qobject_cast<QWindow*>(amnApp->qmlEngine()->rootObjects().first());
+                                               if (window) {
+                                                   window->hide();
+                                               }
+                                           }
+                                           qApp->quit();
+                                       });
 
     m_systemTrayIcon.setContextMenu(&m_menu);
     setTrayState(Vpn::ConnectionState::Disconnected);

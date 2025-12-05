@@ -24,6 +24,7 @@ ConnectionController::ConnectionController(const QSharedPointer<ServersModel> &s
     connect(m_vpnConnection.get(), &VpnConnection::connectionStateChanged, this, &ConnectionController::onConnectionStateChanged);
     connect(this, &ConnectionController::connectToVpn, m_vpnConnection.get(), &VpnConnection::connectToVpn, Qt::QueuedConnection);
     connect(this, &ConnectionController::disconnectFromVpn, m_vpnConnection.get(), &VpnConnection::disconnectFromVpn, Qt::QueuedConnection);
+    connect(m_vpnConnection.get(), &VpnConnection::disconnectFinished, this, &ConnectionController::onDisconnectFinished, Qt::QueuedConnection);
 
     connect(this, &ConnectionController::connectButtonClicked, this, &ConnectionController::toggleConnection, Qt::QueuedConnection);
 
@@ -69,6 +70,11 @@ void ConnectionController::closeConnection()
 
 void ConnectionController::reconnect()
 {
+    if (m_state == Vpn::ConnectionState::Disconnecting) {
+        m_pendingReconnect = true;
+        return;
+    }
+
     if (m_isConnected || m_isConnectionInProgress) {
         m_pendingReconnect = true;
         emit disconnectFromVpn();
@@ -85,6 +91,8 @@ ErrorCode ConnectionController::getLastConnectionError()
 void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
 {
     m_state = state;
+
+
 
     m_isConnected = false;
     m_connectionStateText = tr("Connecting...");
@@ -107,12 +115,6 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
     case Vpn::ConnectionState::Disconnected: {
         m_isConnectionInProgress = false;
         m_connectionStateText = tr("Connect");
-        
-        // Handle pending reconnect request
-        if (m_pendingReconnect) {
-            m_pendingReconnect = false;
-            openConnection();
-        }
         break;
     }
     case Vpn::ConnectionState::Disconnecting: {
@@ -128,6 +130,7 @@ void ConnectionController::onConnectionStateChanged(Vpn::ConnectionState state)
     case Vpn::ConnectionState::Error: {
         m_isConnectionInProgress = false;
         m_connectionStateText = tr("Connect");
+        m_pendingReconnect = false; // Cancel pending reconnect on error
         emit connectionErrorOccurred(getLastConnectionError());
         break;
     }
@@ -145,9 +148,17 @@ void ConnectionController::onCurrentContainerUpdated()
 {
     if (m_isConnected || m_isConnectionInProgress) {
         emit reconnectWithUpdatedContainer(tr("Settings updated successfully, reconnnection..."));
-        openConnection();
+        reconnect();
     } else {
         emit reconnectWithUpdatedContainer(tr("Settings updated successfully"));
+    }
+}
+
+void ConnectionController::onDisconnectFinished()
+{
+    if (m_pendingReconnect) {
+        m_pendingReconnect = false;
+        openConnection();
     }
 }
 
@@ -174,11 +185,19 @@ void ConnectionController::toggleConnection()
         return;
     }
 
+    if (m_state == Vpn::ConnectionState::Disconnecting || m_state == Vpn::ConnectionState::Reconnecting) {
+        return;
+    }
+
     if (isConnectionInProgress()) {
+        m_pendingReconnect = false;
         closeConnection();
     } else if (isConnected()) {
         closeConnection();
     } else {
+        m_isConnectionInProgress = true;
+        m_connectionStateText = tr("Connecting...");
+        emit connectionStateChanged();
         emit prepareConfig();
     }
 }

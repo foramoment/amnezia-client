@@ -602,6 +602,7 @@ void VpnConnection::disconnectFromVpn()
 #endif
 
     m_vpnProtocol = nullptr;
+    emit disconnectFinished();
 }
 
 Vpn::ConnectionState VpnConnection::connectionState()

@@ -38,6 +38,7 @@ public slots:
     void onConnectionStateChanged(Vpn::ConnectionState state);
 
     void onCurrentContainerUpdated();
+    void onDisconnectFinished();
 
     void onTranslationsUpdated();
 
