@@ -16,11 +16,11 @@ This is a community fork of Amnezia VPN with bug fixes and quality-of-life impro
 | Issue | Fix |
 |-------|-----|
 | 🐛 **VPN hangs on server removal** | Now properly waits for VPN to disconnect before removing server/resetting API config |
-| 🐛 **Split tunneling breaks VPN** | Fixed async reconnection — VPN now properly reconnects after settings change instead of staying disconnected |
 | 🐛 **App path shows only folder name** | Split tunneling now displays full application path, not just the last folder |
 | ✨ **Edit split tunneling while connected** | You can now modify split tunneling settings without manually disconnecting — VPN auto-reconnects on exit |
-| ✨ **Add folders to split tunneling** | Windows: You can now type folder paths directly in the input field (previously only file picker worked) |
-| 🧹 **Removed unnecessary filtering** | App split tunneling input field no longer filters the list while typing |
+| ✨ **Add folders to split tunneling** | Windows: Add entire folders (e.g. `C:\Games`) — scans all .exe files inside and excludes them from VPN |
+| ✨ **Fast exit** | Clicking "Quit" in the tray now hides the window and icon instantly — no more waiting for cleanup |
+| ✨ **Filter split tunneling list** | Search field now filters the app list while also allowing folder paths to be added |
 
 ---
 

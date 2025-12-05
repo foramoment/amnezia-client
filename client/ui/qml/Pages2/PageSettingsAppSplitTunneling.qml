@@ -194,6 +194,13 @@ PageType {
         model: SortFilterProxyModel {
             id: proxyAppSplitTunnelingModel
             sourceModel: AppSplitTunnelingModel
+            filters: [
+                RegExpFilter {
+                    roleName: "appPath"
+                    pattern: searchField.textField.text
+                    caseSensitivity: Qt.CaseInsensitive
+                }
+            ]
             sorters: [
                 RoleSorter { roleName: "appPath"; sortOrder: Qt.AscendingOrder }
             ]
@@ -259,7 +266,7 @@ PageType {
 
                 Layout.fillWidth: true
 
-                textField.placeholderText: qsTr("application or folder path")
+                textField.placeholderText: qsTr("filter or add folder path")
                 buttonImageSource: "qrc:/images/controls/plus.svg"
 
                 rightButtonClickedOnEnter: true
