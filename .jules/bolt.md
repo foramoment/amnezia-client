@@ -1,0 +1,3 @@
+## 2025-02-19 - Removed unnecessary thread switching in Settings
+**Learning:** The `Settings` class was using `QMetaObject::invokeMethod` with `Qt::BlockingQueuedConnection` to force execution on the main thread for `value` and `setValue` methods. This is a common pattern to ensure thread safety for non-thread-safe objects. However, the underlying `SecureQSettings` class already uses a `QMutex` to protect its internal state (`m_cache` and `m_settings`), making it thread-safe.
+**Action:** Always check the underlying implementation of a wrapper class before assuming it needs external thread synchronization. Redundant thread switching is a major performance killer.
