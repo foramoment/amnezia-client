@@ -39,7 +39,6 @@ public:
 
 private:
     void setValueInternal(const QString &key, const QVariant &value, bool doSync);
-
     QSettings m_settings;
 
     mutable QHash<QString, QVariant> m_cache;
