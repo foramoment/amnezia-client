@@ -92,7 +92,7 @@ QString errorString(ErrorCode code) {
         errorMessage = QObject::tr("Internal error"); break;
     }
 
-    return QObject::tr("ErrorCode: %1. ").arg(code) + errorMessage;
+    return QObject::tr("ErrorCode: %1. ").arg(static_cast<int>(code)) + errorMessage;
 }
 
 QDebug operator<<(QDebug debug, const ErrorCode &e)
