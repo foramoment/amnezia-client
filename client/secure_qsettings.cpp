@@ -31,7 +31,7 @@ SecureQSettings::SecureQSettings(const QString &organization, const QString &app
         for (const QString &key : m_settings.allKeys()) {
             if (encryptedKeys.contains(key)) {
                 const QVariant &val = value(key);
-                setValue(key, val);
+                setValueInternal(key, val, false);
             }
         }
         m_settings.setValue("Conf/encrypted", true);
@@ -85,6 +85,11 @@ QVariant SecureQSettings::value(const QString &key, const QVariant &defaultValue
 
 void SecureQSettings::setValue(const QString &key, const QVariant &value)
 {
+    setValueInternal(key, value, true);
+}
+
+void SecureQSettings::setValueInternal(const QString &key, const QVariant &value, bool doSync)
+{
     QMutexLocker locker(&mutex);
 
     if (encryptionRequired() && encryptedKeys.contains(key)) {
@@ -107,7 +112,10 @@ void SecureQSettings::setValue(const QString &key, const QVariant &value)
     }
 
     m_cache.insert(key, value);
-    sync();
+
+    if (doSync) {
+        sync();
+    }
 }
 
 void SecureQSettings::remove(const QString &key)
@@ -170,7 +178,7 @@ bool SecureQSettings::restoreAppConfig(const QByteArray &json)
             continue;
         }
 
-        setValue(key, cfg.value(key).toVariant());
+        setValueInternal(key, cfg.value(key).toVariant(), false);
     }
 
     sync();
@@ -212,10 +220,6 @@ bool SecureQSettings::encryptionRequired() const
 
 QByteArray SecureQSettings::getEncKey() const
 {
-    if (!m_key.isEmpty()) {
-        return m_key;
-    }
-
     // load keys from system key storage
     m_key = getSecTag(settingsKeyTag);
 
@@ -242,10 +246,6 @@ QByteArray SecureQSettings::getEncKey() const
 
 QByteArray SecureQSettings::getEncIv() const
 {
-    if (!m_iv.isEmpty()) {
-        return m_iv;
-    }
-
     // load keys from system key storage
     m_iv = getSecTag(settingsIvTag);
 
