@@ -417,7 +417,6 @@ void Settings::setVpnApps(AppsRouteMode mode, const QVector<InstalledAppInfo> &a
         appsArray.push_back(appInfo);
     }
     setValue("Conf/" + appsRouteModeString(mode), appsArray);
-    m_settings.sync();
 }
 
 bool Settings::isAppsSplitTunnelingEnabled() const
