@@ -176,7 +176,7 @@ ErrorCode GatewayController::post(const QString &endpoint, const QJsonObject api
     }
 
     auto errorCode = apiUtils::checkNetworkReplyErrors(sslErrors, replyErrorString, replyError, httpStatusCode, encryptedResponseBody);
-    if (errorCode) {
+    if (errorCode != ErrorCode::NoError) {
         return errorCode;
     }
 
@@ -222,7 +222,7 @@ QFuture<QPair<ErrorCode, QByteArray>> GatewayController::postAsync(const QString
                                                          QNetworkReply::NetworkError replyError, const QString &replyErrorString,
                                                          int httpStatusCode) {
             auto errorCode = apiUtils::checkNetworkReplyErrors(sslErrors, replyErrorString, replyError, httpStatusCode, ecryptedResponseBody);
-            if (errorCode) {
+            if (errorCode != ErrorCode::NoError) {
                 promise->addResult(qMakePair(errorCode, QByteArray()));
                 promise->finish();
                 return;

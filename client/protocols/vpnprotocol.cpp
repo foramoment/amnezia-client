@@ -31,7 +31,7 @@ VpnProtocol::VpnProtocol(const QJsonObject &configuration, QObject *parent)
 void VpnProtocol::setLastError(ErrorCode lastError)
 {
     m_lastError = lastError;
-    if (lastError) {
+    if (lastError != ErrorCode::NoError) {
         setConnectionState(Vpn::ConnectionState::Error);
     }
     qCritical().noquote() << "VpnProtocol error, code" << m_lastError << errorString(m_lastError);

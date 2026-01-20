@@ -177,7 +177,7 @@ void InstallController::install(DockerContainer container, int port, TransportPr
 
     QMap<DockerContainer, QJsonObject> installedContainers;
     ErrorCode errorCode = getAlreadyInstalledContainers(serverCredentials, serverController, installedContainers);
-    if (errorCode) {
+    if (errorCode != ErrorCode::NoError) {
         emit installationErrorOccurred(errorCode);
         return;
     }
@@ -186,7 +186,7 @@ void InstallController::install(DockerContainer container, int port, TransportPr
 
     if (!installedContainers.contains(container)) {
         errorCode = serverController->setupContainer(serverCredentials, container, config);
-        if (errorCode) {
+        if (errorCode != ErrorCode::NoError) {
             emit installationErrorOccurred(errorCode);
             return;
         }
@@ -197,7 +197,7 @@ void InstallController::install(DockerContainer container, int port, TransportPr
         finishMessage = tr("%1 is already installed on the server. ").arg(ContainerProps::containerHumanNames().value(container));
     }
 
-    if (errorCode) {
+    if (errorCode != ErrorCode::NoError) {
         emit installationErrorOccurred(errorCode);
         return;
     }
@@ -232,7 +232,7 @@ void InstallController::installServer(const DockerContainer container, const QMa
         if (ContainerProps::isSupportedByCurrentPlatform(container)) {
             auto errorCode = vpnConfigurationController.createProtocolConfigForContainer(m_processedServerCredentials, iterator.key(),
                                                                                          containerConfig);
-            if (errorCode) {
+            if (errorCode != ErrorCode::NoError) {
                 emit installationErrorOccurred(errorCode);
                 return;
             }
@@ -240,7 +240,7 @@ void InstallController::installServer(const DockerContainer container, const QMa
 
             errorCode = m_clientManagementModel->appendClient(iterator.key(), serverCredentials, containerConfig,
                                                               QString("Admin [%1]").arg(QSysInfo::prettyProductName()), serverController);
-            if (errorCode) {
+            if (errorCode != ErrorCode::NoError) {
                 emit installationErrorOccurred(errorCode);
                 return;
             }
@@ -272,7 +272,7 @@ void InstallController::installContainer(const DockerContainer container, const 
             if (ContainerProps::isSupportedByCurrentPlatform(container)) {
                 auto errorCode =
                         vpnConfigurationController.createProtocolConfigForContainer(serverCredentials, iterator.key(), containerConfig);
-                if (errorCode) {
+                if (errorCode != ErrorCode::NoError) {
                     emit installationErrorOccurred(errorCode);
                     return;
                 }
@@ -280,7 +280,7 @@ void InstallController::installContainer(const DockerContainer container, const 
 
                 errorCode = m_clientManagementModel->appendClient(iterator.key(), serverCredentials, containerConfig,
                                                                   QString("Admin [%1]").arg(QSysInfo::prettyProductName()), serverController);
-                if (errorCode) {
+                if (errorCode != ErrorCode::NoError) {
                     emit installationErrorOccurred(errorCode);
                     return;
                 }
@@ -338,7 +338,7 @@ void InstallController::scanServerForInstalledContainers()
                 if (ContainerProps::isSupportedByCurrentPlatform(container)) {
                     auto errorCode =
                             vpnConfigurationController.createProtocolConfigForContainer(serverCredentials, container, containerConfig);
-                    if (errorCode) {
+                    if (errorCode != ErrorCode::NoError) {
                         emit installationErrorOccurred(errorCode);
                         return;
                     }
@@ -347,7 +347,7 @@ void InstallController::scanServerForInstalledContainers()
                     errorCode = m_clientManagementModel->appendClient(container, serverCredentials, containerConfig,
                                                                       QString("Admin [%1]").arg(QSysInfo::prettyProductName()),
                                                                       serverController);
-                    if (errorCode) {
+                    if (errorCode != ErrorCode::NoError) {
                         emit installationErrorOccurred(errorCode);
                         return;
                     }

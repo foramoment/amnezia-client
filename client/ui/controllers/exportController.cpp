@@ -79,7 +79,7 @@ void ExportController::generateConnectionConfig(const QString &clientName)
     }
 
     QJsonObject serverConfig = m_serversModel->getServerConfig(serverIndex);
-    if (!errorCode) {
+    if (errorCode == ErrorCode::NoError) {
         serverConfig.remove(config_key::userName);
         serverConfig.remove(config_key::password);
         serverConfig.remove(config_key::port);
@@ -142,7 +142,7 @@ void ExportController::generateOpenVpnConfig(const QString &clientName)
         errorCode = generateNativeConfig(container, clientName, ContainerProps::defaultProtocol(container), nativeConfig);
     }
 
-    if (errorCode) {
+    if (errorCode != ErrorCode::NoError) {
         emit exportErrorOccurred(errorCode);
         return;
     }
@@ -160,7 +160,7 @@ void ExportController::generateWireGuardConfig(const QString &clientName)
 {
     QJsonObject nativeConfig;
     ErrorCode errorCode = generateNativeConfig(DockerContainer::WireGuard, clientName, Proto::WireGuard, nativeConfig);
-    if (errorCode) {
+    if (errorCode != ErrorCode::NoError) {
         emit exportErrorOccurred(errorCode);
         return;
     }
@@ -180,7 +180,7 @@ void ExportController::generateAwgConfig(const QString &clientName)
 {
     QJsonObject nativeConfig;
     ErrorCode errorCode = generateNativeConfig(DockerContainer::Awg, clientName, Proto::Awg, nativeConfig);
-    if (errorCode) {
+    if (errorCode != ErrorCode::NoError) {
         emit exportErrorOccurred(errorCode);
         return;
     }
@@ -208,7 +208,7 @@ void ExportController::generateShadowSocksConfig()
         errorCode = generateNativeConfig(container, "", ContainerProps::defaultProtocol(container), nativeConfig);
     }
 
-    if (errorCode) {
+    if (errorCode != ErrorCode::NoError) {
         emit exportErrorOccurred(errorCode);
         return;
     }
@@ -234,7 +234,7 @@ void ExportController::generateCloakConfig()
 {
     QJsonObject nativeConfig;
     ErrorCode errorCode = generateNativeConfig(DockerContainer::Cloak, "", Proto::Cloak, nativeConfig);
-    if (errorCode) {
+    if (errorCode != ErrorCode::NoError) {
         emit exportErrorOccurred(errorCode);
         return;
     }
@@ -255,7 +255,7 @@ void ExportController::generateXrayConfig(const QString &clientName)
     //Xray data
     QJsonObject nativeConfig;
     ErrorCode errorCode = generateNativeConfig(DockerContainer::Xray, clientName, Proto::Xray, nativeConfig);
-    if (errorCode) {
+    if (errorCode != ErrorCode::NoError) {
         emit exportErrorOccurred(errorCode);
         return;
     }

@@ -36,8 +36,7 @@ namespace amnezia
     namespace error_code_ns
     {
       Q_NAMESPACE
-      // TODO: change to enum class
-      enum ErrorCode {
+      enum class ErrorCode {
         // General error codes
         NoError = 0,
         UnknownError = 100,

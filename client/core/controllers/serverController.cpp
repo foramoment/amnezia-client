@@ -101,7 +101,7 @@ ErrorCode ServerController::runContainerScript(const ServerCredentials &credenti
     QString fileName = "/opt/amnezia/" + Utils::getRandomString(16) + ".sh";
 
     ErrorCode e = uploadTextFileToContainer(container, credentials, script, fileName);
-    if (e)
+    if (e != ErrorCode::NoError)
         return e;
 
     QString runner =
@@ -120,7 +120,7 @@ ErrorCode ServerController::uploadTextFileToContainer(DockerContainer container,
     ErrorCode e = ErrorCode::NoError;
     QString tmpFileName = QString("/tmp/%1.tmp").arg(Utils::getRandomString(16));
     e = uploadFileToHost(credentials, file.toUtf8(), tmpFileName);
-    if (e)
+    if (e != ErrorCode::NoError)
         return e;
 
     QString stdOut;
@@ -133,7 +133,7 @@ ErrorCode ServerController::uploadTextFileToContainer(DockerContainer container,
     QString mkdir = QString("sudo docker exec -i $CONTAINER_NAME mkdir -p  \"$(dirname %1)\"").arg(path);
 
     e = runScript(credentials, replaceVars(mkdir, genVarsForScript(credentials, container)));
-    if (e)
+    if (e != ErrorCode::NoError)
         return e;
 
     if (overwriteMode == libssh::ScpOverwriteMode::ScpOverwriteExisting) {
@@ -142,7 +142,7 @@ ErrorCode ServerController::uploadTextFileToContainer(DockerContainer container,
                                   genVarsForScript(credentials, container)),
                       cbReadStd, cbReadStd);
 
-        if (e)
+        if (e != ErrorCode::NoError)
             return e;
     } else if (overwriteMode == libssh::ScpOverwriteMode::ScpAppendToExisting) {
         e = runScript(credentials,
@@ -150,7 +150,7 @@ ErrorCode ServerController::uploadTextFileToContainer(DockerContainer container,
                                   genVarsForScript(credentials, container)),
                       cbReadStd, cbReadStd);
 
-        if (e)
+        if (e != ErrorCode::NoError)
             return e;
 
         e = runScript(credentials,
@@ -158,7 +158,7 @@ ErrorCode ServerController::uploadTextFileToContainer(DockerContainer container,
                                   genVarsForScript(credentials, container)),
                       cbReadStd, cbReadStd);
 
-        if (e)
+        if (e != ErrorCode::NoError)
             return e;
     } else
         return ErrorCode::NotImplementedError;
@@ -245,32 +245,32 @@ ErrorCode ServerController::setupContainer(const ServerCredentials &credentials,
     ErrorCode e = ErrorCode::NoError;
 
     e = isUserInSudo(credentials, container);
-    if (e)
+    if (e != ErrorCode::NoError)
         return e;
 
     e = isServerDpkgBusy(credentials, container);
-    if (e)
+    if (e != ErrorCode::NoError)
         return e;
 
     e = installDockerWorker(credentials, container);
-    if (e)
+    if (e != ErrorCode::NoError)
         return e;
     qDebug().noquote() << "ServerController::setupContainer installDockerWorker finished";
 
     if (!isUpdate) {
         e = isServerPortBusy(credentials, container, config);
-        if (e)
+        if (e != ErrorCode::NoError)
             return e;
     }
 
     if (!isUpdate) {
         e = isServerPortBusy(credentials, container, config);
-        if (e)
+        if (e != ErrorCode::NoError)
             return e;
     }
 
     e = prepareHostWorker(credentials, container, config);
-    if (e)
+    if (e != ErrorCode::NoError)
         return e;
     qDebug().noquote() << "ServerController::setupContainer prepareHostWorker finished";
 
@@ -279,17 +279,17 @@ ErrorCode ServerController::setupContainer(const ServerCredentials &credentials,
 
     qDebug().noquote() << "buildContainerWorker start";
     e = buildContainerWorker(credentials, container, config);
-    if (e)
+    if (e != ErrorCode::NoError)
         return e;
     qDebug().noquote() << "ServerController::setupContainer buildContainerWorker finished";
 
     e = runContainerWorker(credentials, container, config);
-    if (e)
+    if (e != ErrorCode::NoError)
         return e;
     qDebug().noquote() << "ServerController::setupContainer runContainerWorker finished";
 
     e = configureContainerWorker(credentials, container, config);
-    if (e)
+    if (e != ErrorCode::NoError)
         return e;
     qDebug().noquote() << "ServerController::setupContainer configureContainerWorker finished";
 
@@ -309,7 +309,7 @@ ErrorCode ServerController::updateContainer(const ServerCredentials &credentials
         return setupContainer(credentials, container, newConfig, true);
     } else {
         ErrorCode e = configureContainerWorker(credentials, container, newConfig);
-        if (e)
+        if (e != ErrorCode::NoError)
             return e;
 
         return startupContainerWorker(credentials, container, newConfig);
@@ -438,12 +438,12 @@ ErrorCode ServerController::buildContainerWorker(const ServerCredentials &creden
     QString dockerFilePath = amnezia::server::getDockerfileFolder(container) + "/Dockerfile";
     QString scriptString = QString("sudo rm %1").arg(dockerFilePath);
     ErrorCode errorCode = runScript(credentials, replaceVars(scriptString, genVarsForScript(credentials, container)));
-    if (errorCode)
+    if (errorCode != ErrorCode::NoError)
         return errorCode;
 
     errorCode = uploadFileToHost(credentials, amnezia::scriptData(ProtocolScriptType::dockerfile, container).toUtf8(), dockerFilePath);
 
-    if (errorCode)
+    if (errorCode != ErrorCode::NoError)
         return errorCode;
 
     QString stdOut;
@@ -526,7 +526,7 @@ ErrorCode ServerController::startupContainerWorker(const ServerCredentials &cred
 
     ErrorCode e = uploadTextFileToContainer(container, credentials, replaceVars(script, genVarsForScript(credentials, container, config)),
                                             "/opt/amnezia/start.sh");
-    if (e)
+    if (e != ErrorCode::NoError)
         return e;
 
     return runScript(credentials,
