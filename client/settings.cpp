@@ -1,8 +1,5 @@
 #include "settings.h"
 
-#include "QCoreApplication"
-#include "QThread"
-
 #include "core/networkUtilities.h"
 #include "version.h"
 
@@ -499,24 +496,15 @@ ServerCredentials Settings::serverCredentials(int index) const
 
 QVariant Settings::value(const QString &key, const QVariant &defaultValue) const
 {
-    QVariant returnValue;
-    if (QThread::currentThread() == QCoreApplication::instance()->thread()) {
-        returnValue = m_settings.value(key, defaultValue);
-    } else {
-        QMetaObject::invokeMethod(&m_settings, "value", Qt::BlockingQueuedConnection, Q_RETURN_ARG(QVariant, returnValue),
-                                  Q_ARG(const QString &, key), Q_ARG(const QVariant &, defaultValue));
-    }
-    return returnValue;
+    // SecureQSettings is thread-safe (uses QMutex), so we can call it directly
+    // avoiding the expensive thread context switch.
+    return m_settings.value(key, defaultValue);
 }
 
 void Settings::setValue(const QString &key, const QVariant &value)
 {
-    if (QThread::currentThread() == QCoreApplication::instance()->thread()) {
-        m_settings.setValue(key, value);
-    } else {
-        QMetaObject::invokeMethod(&m_settings, "setValue", Qt::BlockingQueuedConnection, Q_ARG(const QString &, key),
-                                  Q_ARG(const QVariant &, value));
-    }
+    // SecureQSettings is thread-safe.
+    m_settings.setValue(key, value);
 }
 
 void Settings::resetGatewayEndpoint()
